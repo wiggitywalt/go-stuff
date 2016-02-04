@@ -8,6 +8,7 @@ package main
   "io/ioutil"
   "log"
   "encoding/csv"
+  "bufio"
  )
 
 func process_single_dir(doneCh chan bool, fdir string) {
@@ -28,13 +29,20 @@ func process_single_dir(doneCh chan bool, fdir string) {
   for _, f := range files {
     full_path := logdir + "/" + f.Name()
     fmt.Println(full_path)
-    input, err := ioutil.ReadFile(full_path)
+    input, err := os.Open(full_path)
+    scanner := bufio.NewScanner(input)
+    defer input.Close()
+
+    // input, err := ioutil.ReadFile(full_path)
     if err != nil {
             log.Fatalln(err)
             continue
     }
-    lines := strings.Split(string(input), "\n")
-    for _, line := range lines {
+    // lines := strings.Split(string(input), "\n")
+
+    for scanner.Scan(){
+    // for _, line := range lines {
+      line := scanner.Text()
       if strings.Contains(line, "exec enforce_watermark_select @user_id =") && !strings.Contains(line, "BLOCK") {
           my_array := strings.Split(strings.TrimSpace(line), ",")
           user_id_line := strings.Replace(my_array[0], "=", " ", -1)
@@ -69,7 +77,7 @@ func process_dir(doneCh chan bool){
 
       doneCh := make(chan bool)
       process_dir(doneCh)
-for i:=0;i<4;i++ {
-      <-doneCh
-}
+  for i:=0;i<4;i++ {
+    <-doneCh
+  }
  }
