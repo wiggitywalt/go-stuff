@@ -22,7 +22,6 @@ func process_single_dir(doneCh chan bool, fdir string) {
           return
     }
   defer csvfile.Close()
-  //put code below
 
   files, _ := ioutil.ReadDir(logdir)
 
